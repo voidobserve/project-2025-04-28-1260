@@ -86,6 +86,11 @@ void main(void)
 
     system_init();
 
+    // 关闭HCK和HDA的调试功能
+    WDT_KEY = 0x55;  // 解除写保护
+    IO_MAP &= ~0x01; // 清除这个寄存器的值，实现关闭HCK和HDA引脚的调试功能（解除映射）
+    WDT_KEY = 0xBB;  // 写一个无效的数据，触发写保护
+
 #if USE_MY_DEBUG // 打印串口配置
     // 初始化打印
     my_debug_config();
@@ -115,21 +120,22 @@ void main(void)
     // adc_sel_pin(ADC_SEL_PIN_GET_VOL); // 切换到9脚，准备检测9脚的电压
 
 // ===================================================================
-#if 1 // 开机缓慢启动（PWM信号变化平缓）
+#if 1        // 开机缓慢启动（PWM信号变化平缓）
     P14 = 0; // 16脚先输出低电平
     c_duty = 0;
     limited_max_pwm_duty = MAX_PWM_DUTY;
     // while (c_duty < 6000)
-    while (c_duty < limited_max_pwm_duty)
+    while (c_duty < limited_max_pwm_duty) // 当c_duty 大于 限制的最大占空比后，退出
     {
-        adc_update_pin_9_adc_val(); // 采集并更新9脚的ad值
+        adc_update_pin_9_adc_val();        // 采集并更新9脚的ad值
         update_max_pwm_duty_coefficient(); // 更新当前的最大占空比
 
 #if USE_MY_DEBUG // 直接打印0，防止在串口+图像上看到错位
-        printf(",b=0,");  // 防止错位
+
+        printf(",b=0,"); // 防止在串口图像错位
 
 #endif
-    
+
         if (flag_is_pwm_sub_time_comes) // pwm递减时间到来
         {
             flag_is_pwm_sub_time_comes = 0;
@@ -138,15 +144,15 @@ void main(void)
                 只要有一次跳动，退出开机缓启动(改成等到变为100%占空比再退出)，
                 由于adjust_duty初始值为6000，直接退出会直接设置占空比为adjust_duty对应的值，
                 会导致灯光闪烁一下
-            */ 
-            if (adc_val_pin_9 >= ADC_VAL_WHEN_UNSTABLE) 
+            */
+            if (adc_val_pin_9 >= ADC_VAL_WHEN_UNSTABLE)
             {
                 // if (c_duty >= PWM_DUTY_100_PERCENT)
                 if (c_duty >= limited_max_pwm_duty)
                 {
                     // adjust_duty = c_duty;
                     break;
-                }                
+                }
             }
         }
 
@@ -169,7 +175,8 @@ void main(void)
     {
 #if 1
         adc_update_pin_9_adc_val(); // 采集并更新9脚的ad值
-        temperature_scan();         // 检测热敏电阻一端的电压值
+        update_max_pwm_duty_coefficient();
+        temperature_scan();               // 检测热敏电阻一端的电压值
         set_duty();                       // 设定到要调节到的脉宽
         according_pin9_to_adjust_pin16(); // 根据9脚的电压来设定16脚的电平
 

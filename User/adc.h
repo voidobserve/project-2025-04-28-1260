@@ -6,25 +6,25 @@
 #include "pwm.h"
 #include <string.h>
 
-// ¶¨Òå¼ì²âadcµÄÍ¨µÀ:
+// å®šä¹‰æ£€æµ‹adcçš„é€šé“:
 enum
 {
     ADC_SEL_PIN_NONE = 0,
-    ADC_SEL_PIN_GET_TEMP = 0x01, // ¸ù¾İÈÈÃôµç×èÒ»¶ËÀ´ÅäÖÃADC
-    ADC_SEL_PIN_GET_VOL = 0x02,  // ¸ù¾İ9½ÅÀ´ÅäÖÃADC
-    ADC_SEL_PIN_P31 = 0x03, // P31£¬7½Å
+    ADC_SEL_PIN_GET_TEMP = 0x01, // æ ¹æ®çƒ­æ•ç”µé˜»ä¸€ç«¯æ¥é…ç½®ADC
+    ADC_SEL_PIN_GET_VOL = 0x02,  // æ ¹æ®9è„šæ¥é…ç½®ADC
+    ADC_SEL_PIN_P31 = 0x03, // P31ï¼Œ7è„š
 };
 
-extern volatile u16 adc_val_pin_9; // ´æ·Å9½Å²É¼¯µ½µÄadÖµ
+extern volatile u16 adc_val_pin_9; // å­˜æ”¾9è„šé‡‡é›†åˆ°çš„adå€¼
 
-// »ñÈ¡Ò»´Îadc²É¼¯+ÂË²¨ºóµÄÖµ
+// è·å–ä¸€æ¬¡adcé‡‡é›†+æ»¤æ³¢åçš„å€¼
 u16 adc_get_val(void);
 
-void adc_pin_config(void);      // adcÏà¹ØµÄÒı½ÅÅäÖÃ£¬µ÷ÓÃÍê³Éºó£¬»¹Î´ÄÜÊ¹ÓÃadc
-void adc_sel_pin(const u8 pin); // ÇĞ»»adc²É¼¯µÄÒı½Å£¬²¢ÅäÖÃºÃadc
-// void adc_single_getval(void);   // adcÍê³ÉÒ»´Î×ª»»
+void adc_pin_config(void);      // adcç›¸å…³çš„å¼•è„šé…ç½®ï¼Œè°ƒç”¨å®Œæˆåï¼Œè¿˜æœªèƒ½ä½¿ç”¨adc
+void adc_sel_pin(const u8 pin); // åˆ‡æ¢adcé‡‡é›†çš„å¼•è„šï¼Œå¹¶é…ç½®å¥½adc
+// void adc_single_getval(void);   // adcå®Œæˆä¸€æ¬¡è½¬æ¢
 
-u32 get_voltage_from_pin(void); // ´ÓÒı½ÅÉÏ²É¼¯ÂË²¨ºóµÄµçÑ¹Öµ
+u32 get_voltage_from_pin(void); // ä»å¼•è„šä¸Šé‡‡é›†æ»¤æ³¢åçš„ç”µå‹å€¼
 
 void adc_update_pin_9_adc_val(void);
 

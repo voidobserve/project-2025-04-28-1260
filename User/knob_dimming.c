@@ -10,6 +10,4 @@ void update_max_pwm_duty_coefficient(void)
     adc_val = adc_get_val();
 
     limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096;
-
-    // adjust_duty = limited_max_pwm_duty;
 }

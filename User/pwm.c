@@ -1,8 +1,8 @@
 #include "pwm.h"
 #include "time0.h"
 
-volatile u16 c_duty = 0;         // 当前设置的占空比
-volatile u16 adjust_duty = 6000; // 最终要调节成的占空比
+volatile u16 c_duty = 0;          // 当前设置的占空比
+volatile u16 adjust_duty = 6000;  // 最终要调节成的占空比
 volatile u16 max_pwm_duty = 6000; // 存放占空比的上限值
 // bit jump_flag = 0;
 // bit max_flag = 0; // 最大占空比的标志位
@@ -41,14 +41,18 @@ void set_pwm_duty(void)
     STMR_LOADEN |= STMR_0_LOAD_EN(0x1);                    // 自动装载使能
 }
 
+/*
+    滤波、判断电压是否有跳动，一段时间内电压浮动过大，
+    所使用到的这些变量
+*/
 static u16 t_count = 0;
-static u16 t_adc_max = 0; 
-static u16 t_adc_min = 4096;
+static u16 t_adc_max = 0;    // 存放一段时间内采集到的最大ad值
+static u16 t_adc_min = 4096; // 存放一段时间内采集到的最小ad值
 static u8 over_drive_status = 0;
-#define OVER_DRIVE_RESTART_TIME (30) 
+#define OVER_DRIVE_RESTART_TIME (30)
 
 static volatile u16 filter_buff_2[270] = {0}; // 用于滤波的数组
-static volatile u16 buff_index_2 = 0;// 用于滤波的数组下标
+static volatile u16 buff_index_2 = 0;         // 用于滤波的数组下标
 
 // 电源电压低于170V-AC,启动低压保护，电源电压高于170V-AC，关闭低压保护
 // 温度正常，才会进入到这里
@@ -201,10 +205,15 @@ void according_pin9_to_adjust_pwm(void)
         {
             over_drive_status -= 1;
             if (adjust_duty > PWM_DUTY_50_PERCENT)
+            {
                 // adjust_duty -= 300; // 变化太大，会造成灯光闪烁
                 adjust_duty -= 1;
+            }
+
             if (adjust_duty < PWM_DUTY_50_PERCENT)
+            {
                 adjust_duty = PWM_DUTY_50_PERCENT;
+            }
         }
         else if (over_drive_status == 0)
         {
@@ -212,7 +221,7 @@ void according_pin9_to_adjust_pwm(void)
             if (flag_is_pwm_add_time_comes) // pwm占空比递增时间到来
             {
                 flag_is_pwm_add_time_comes = 0;
-                if (adjust_duty < 6000)
+                if (adjust_duty < PWM_DUTY_100_PERCENT)
                 {
                     adjust_duty++;
                 }
@@ -321,6 +330,7 @@ void Adaptive_Duty(void)
 
 #if 1 // 立即调节占空比的版本：
 
+    adjust_duty = limited_max_pwm_duty;
     c_duty = adjust_duty;
     set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
 
