@@ -16,6 +16,8 @@ void adc_pin_config(void)
     P2_MD1 |= GPIO_P27_MODE_SEL(0x3);
 
     // P31--7脚配置为模拟输入模式
+    P3_PU &= ~(0x01 << 1); // 关闭上拉
+    P3_PD &= ~(0x01 << 1); // 关闭下拉
     P3_MD0 |= GPIO_P31_MODE_SEL(0x3);
 }
 
@@ -35,6 +37,9 @@ void adc_sel_pin(const u8 adc_sel)
     }
 
     last_adc_sel = adc_sel;
+
+    ADC_CFG1 |= (0x0F << 3); // ADC时钟分频为16分频，为系统时钟/16
+    ADC_CFG2 = 0xFF; // 通道0采样时间配置为256个采样时钟周期
 
     switch (adc_sel)
     {
@@ -238,8 +243,8 @@ void temperature_scan(void)
                 tmr1_disable();        // 关闭定时器
                 tmr1_cnt = 0;          // 清空时间计数值
 #if USE_MY_DEBUG
-                printf("在温度超过了75摄氏度时，检测到有一次温度没有超过75摄氏度\n");
-                printf("此时采集到的电压值：%lu mV\n", voltage);
+                // printf("在温度超过了75摄氏度时，检测到有一次温度没有超过75摄氏度\n");
+                // printf("此时采集到的电压值：%lu mV\n", voltage);
 #endif
                 return;
             }
@@ -350,6 +355,7 @@ void adc_update_pin_9_adc_val(void)
 
 #if USE_MY_DEBUG // 打印从9脚采集到的ad值
     // printf("adc_val_pin_9 %u\n", adc_val_pin_9);
-    printf(",a=%u,", adc_val_pin_9);
+    
+    // printf(",a=%u,", adc_val_pin_9);
 #endif // USE_MY_DEBUG // 打印从9脚采集到的ad值
 }

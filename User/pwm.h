@@ -5,9 +5,9 @@
 #include <stdio.h>
 
 // extern bit jump_flag;
-extern volatile u16 adjust_duty; // 要调整到的占空比
-extern volatile u16 c_duty;      // 当前设置的占空比
-extern volatile u16 max_pwm_duty;// 存放占空比的上限值
+extern volatile u16 adjust_duty;  // 要调整到的占空比
+extern volatile u16 c_duty;       // 当前设置的占空比
+extern volatile u16 max_pwm_duty; // 存放占空比的上限值
 
 #define MAX_PWM_DUTY (6000) // 100%占空比
 enum
@@ -17,7 +17,7 @@ enum
     PWM_DUTY_75_PERCENT = 4500,  // 75%占空比
     PWM_DUTY_50_PERCENT = 3000,  // 50%占空比
     PWM_DUTY_30_PERCENT = 1800,  // 30%占空比
-    PWM_DUTY_25_PERCENT = 1500   // 25%占空比
+    PWM_DUTY_25_PERCENT = 1500,  // 25%占空比
 };
 
 void pwm_init(void);

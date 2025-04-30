@@ -1,6 +1,8 @@
 #include "pwm.h"
 #include "time0.h"
 
+extern volatile bit flag_is_in_power_on; // 是否处于开机缓启动
+
 volatile u16 c_duty = 0;          // 当前设置的占空比
 volatile u16 adjust_duty = 6000;  // 最终要调节成的占空比
 volatile u16 max_pwm_duty = 6000; // 存放占空比的上限值
@@ -114,7 +116,7 @@ void according_pin9_to_adjust_pwm(void)
     }
 
 #if USE_MY_DEBUG
-    printf(",b=%lu,", adc_pin_9_avg);
+    // printf(",b=%lu,", adc_pin_9_avg);
 #endif
 
     // if (adc_pin_9_avg > t_adc_max)
@@ -330,12 +332,39 @@ void Adaptive_Duty(void)
 
 #if 1 // 立即调节占空比的版本：
 
-    adjust_duty = limited_max_pwm_duty;
-    c_duty = adjust_duty;
-    set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
+    // adjust_duty = adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY ; /* 不能这么计算，会越来越小 */
+    c_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
+    set_pwm_duty();                                                  // 函数内部会将 c_duty 的值代入相关寄存器中
+
+    if (0 == flag_is_in_power_on) // 如果不处于开机缓启动
+    {
+        if (c_duty <= 200) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+        {
+            // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置回输出模式，输出低电平
+            STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
+            FOUT_S16 = GPIO_FOUT_AF_FUNC; //
+            P16 = 1; // 高电平为关灯(还未确定)
+        }
+        else if (c_duty >= 250) // 大于某个值，再打开PWM，引脚配置回PWM
+        {
+            FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
+            STMR_PWMEN |= 0x01;                // 使能PWM0的输出
+        }
+    }
 
 #if USE_MY_DEBUG
-    printf(",c=%u,", c_duty);
+    // printf(",c=%u,", c_duty);
+
+    {
+        static u8 cnt = 0;
+        cnt++;
+        if (cnt >= 200)
+        {
+            cnt = 0;
+            printf("c_duty %u\n", c_duty);
+        }
+    }
+
 #endif
 
 #endif // 立即调节占空比的版本

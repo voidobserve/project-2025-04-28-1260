@@ -9,5 +9,23 @@ void update_max_pwm_duty_coefficient(void)
     adc_sel_pin(ADC_SEL_PIN_P31);
     adc_val = adc_get_val();
 
-    limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096;
+    // limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096; // 会出现指数级下降
+    // limited_max_pwm_duty = (u32)adjust_duty * 2048 / 4096;
+    limited_max_pwm_duty = (u32)MAX_PWM_DUTY * adc_val / 4096;
+
+    // printf("adc_val %u\n", adc_val);
+    // printf("limited_max_pwm_duty %u\n", limited_max_pwm_duty);
+
+#if USE_MY_DEBUG
+    {
+        static u8 cnt = 0;
+        cnt++;
+        if (cnt >= 200)
+        {
+            cnt = 0;
+            printf("adc_val %u\n", adc_val);
+            printf("limited_max_pwm_duty %u\n", limited_max_pwm_duty);
+        }
+    }
+#endif
 }

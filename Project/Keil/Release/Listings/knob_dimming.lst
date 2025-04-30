@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      04/29/2025 08:57:44 PAGE 1   
+C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      04/30/2025 16:57:57 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KNOB_DIMMING
@@ -20,12 +20,30 @@ line level    source
    9   1          adc_sel_pin(ADC_SEL_PIN_P31);
   10   1          adc_val = adc_get_val();
   11   1      
-  12   1          limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096;
-  13   1      }
+  12   1          // limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096; // 会出现指数级下降
+  13   1          // limited_max_pwm_duty = (u32)adjust_duty * 2048 / 4096;
+  14   1          limited_max_pwm_duty = (u32)MAX_PWM_DUTY * adc_val / 4096;
+  15   1      
+  16   1          // printf("adc_val %u\n", adc_val);
+  17   1          // printf("limited_max_pwm_duty %u\n", limited_max_pwm_duty);
+  18   1      
+  19   1      #if USE_MY_DEBUG
+                  {
+                      static u8 cnt = 0;
+                      cnt++;
+                      if (cnt >= 200)
+                      {
+                          cnt = 0;
+                          printf("adc_val %u\n", adc_val);
+                          printf("limited_max_pwm_duty %u\n", limited_max_pwm_duty);
+                      }
+                  }
+              #endif
+  31   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     60    ----
+   CODE SIZE        =     56    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      2       2
    PDATA SIZE       =   ----    ----
