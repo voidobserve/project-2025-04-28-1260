@@ -178,6 +178,8 @@ void main(void)
 
     while (1)
     {
+
+        // printf("%bu \n", KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL);
 #if 1
         adc_update_pin_9_adc_val(); // 采集并更新9脚的ad值
         update_max_pwm_duty_coefficient();

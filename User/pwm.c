@@ -65,7 +65,7 @@ void according_pin9_to_adjust_pwm(void)
         0xFFFF,
     };
     static volatile u8 buff_index = 0;
-    static volatile u8 flag_is_sub_power = 0;  // 标志位，是否要连续减功率
+    static volatile u8 flag_is_sub_power = 0;  // 标志位，是否要连续减功率（状态机）
     static volatile u8 flag_is_sub_power2 = 0; // 标志位，是否要连续减功率
     static volatile bit flag_is_add_power = 0; // 标志位，是否要连续增功率
 
@@ -330,7 +330,7 @@ void Adaptive_Duty(void)
     }
 #endif // 缓慢调节占空比的版本
 
-#if 1 // 立即调节占空比的版本：
+#if 0 // 立即调节占空比的版本：
 
     // adjust_duty = adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY ; /* 不能这么计算，会越来越小 */
     c_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
@@ -338,14 +338,14 @@ void Adaptive_Duty(void)
 
     if (0 == flag_is_in_power_on) // 如果不处于开机缓启动
     {
-        if (c_duty <= 200) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+        if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
         {
             // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置回输出模式，输出低电平
             STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
             FOUT_S16 = GPIO_FOUT_AF_FUNC; //
             P16 = 1; // 高电平为关灯(还未确定)
         }
-        else if (c_duty >= 250) // 大于某个值，再打开PWM，引脚配置回PWM
+        else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚配置回PWM
         {
             FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
             STMR_PWMEN |= 0x01;                // 使能PWM0的输出
@@ -361,13 +361,83 @@ void Adaptive_Duty(void)
         if (cnt >= 200)
         {
             cnt = 0;
-            printf("c_duty %u\n", c_duty);
+            // printf("c_duty %u\n", c_duty);
         }
     }
 
 #endif
 
 #endif // 立即调节占空比的版本
+
+    /*
+       减少分级之后，还是会出现相邻的级别之间来回变化，
+       这里加上缓慢调节占空比的功能
+    */
+#if 1
+    static u16 last_limited_max_pwm_duty = 0;
+    static bit flag_is_first_update_limited = 1;                           // 是否第一次更新限制的最大占空比
+    static bit flag_is_limited_change = 0;                                 // 标志位，限制的最大占空比是否发生改变
+    u16 tmp_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
+
+    if (flag_is_first_update_limited) // 是第一次更新限制的最大占空比
+    {
+        flag_is_first_update_limited = 0;
+        last_limited_max_pwm_duty = limited_max_pwm_duty;
+    }
+
+    if (last_limited_max_pwm_duty != limited_max_pwm_duty)
+    {
+        flag_is_limited_change = 1; // 表示限制的最大占空比发生变化，接下来要缓慢调节占空比
+    }
+
+    if (flag_is_limited_change) // 如果限制的最大占空比发生变化
+    {
+        if (flag_is_pwm_change_time_comes) // 如果更新占空比的时间到来
+        {
+            flag_is_pwm_change_time_comes = 0;
+
+            if (tmp_duty > c_duty)
+            {
+                c_duty++;
+            }
+            else if (tmp_duty < c_duty)
+            {
+                c_duty--;
+            }
+            else // 如果相等
+            {
+                last_limited_max_pwm_duty = limited_max_pwm_duty;
+                flag_is_limited_change = 0;
+            }
+        }
+    }
+    else // 如果限制的最大占空比未发生变化
+    {
+        // c_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
+        c_duty = tmp_duty; // 如果 limited_max_pwm_duty 不变，直接根据 adjust_duty 变化而变化
+    }
+
+    set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
+
+    if (0 == flag_is_in_power_on) // 如果不处于开机缓启动
+    {
+        if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+        {
+            // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置回输出模式，输出低电平
+            STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
+            FOUT_S16 = GPIO_FOUT_AF_FUNC; //
+            P16 = 1;                      // 高电平为关灯(还未确定)
+        }
+        else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚配置回PWM
+        {
+            FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
+            STMR_PWMEN |= 0x01;                // 使能PWM0的输出
+        }
+    }
+
+
+    // printf("c_duty %u\n", c_duty);
+#endif //
 }
 
 // void pwm_adjust(void)

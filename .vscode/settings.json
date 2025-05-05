@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "knob_dimming.h": "c"
+        "knob_dimming.h": "c",
+        "timer2.h": "c"
     }
 }

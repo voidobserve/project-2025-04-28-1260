@@ -9,6 +9,9 @@ static volatile u16 pwm_duty_sub_cnt; // 用于控制pwm递减的时间计数
 volatile bit flag_is_pwm_add_time_comes = 0; // 标志位，pwm占空比递增时间到来
 volatile bit flag_is_pwm_sub_time_comes = 0; // 标志位，pwm占空比递减时间到来
 
+static volatile u8 pwm_duty_change_cnt = 0;     // 用于控制pwm变化的时间计数（用在旋钮调节的PWM占空比中）
+volatile bit flag_is_pwm_change_time_comes = 0; // 标志位，pwm变化时间到来（用在旋钮调节的PWM占空比中）
+
 void timer2_config(void)
 {
     __EnableIRQ(TMR2_IRQn); // 使能timer2中断
@@ -40,19 +43,26 @@ void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
 
         pwm_duty_add_cnt++;
         pwm_duty_sub_cnt++;
+        pwm_duty_change_cnt++;
 
         if (pwm_duty_sub_cnt >= 13) // 1300us，1.3ms
-        // if (pwm_duty_sub_cnt >= 50) 
+        // if (pwm_duty_sub_cnt >= 50)
         {
             pwm_duty_sub_cnt = 0;
             flag_is_pwm_sub_time_comes = 1;
         }
 
         // if (pwm_duty_add_cnt >= 133) // 13300us, 13.3ms
-        if (pwm_duty_add_cnt >= 13) // 
+        if (pwm_duty_add_cnt >= 13) //
         {
             pwm_duty_add_cnt = 0;
             flag_is_pwm_add_time_comes = 1;
+        }
+
+        if (pwm_duty_change_cnt >= 10) // 1000us,1ms
+        {
+            pwm_duty_change_cnt = 0;
+            flag_is_pwm_change_time_comes = 1;
         }
     }
 
