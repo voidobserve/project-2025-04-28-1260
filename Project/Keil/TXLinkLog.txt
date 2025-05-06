@@ -1,59 +1,57 @@
-[05-05 14:50:16]Log start
-[05-05 14:50:16]Serial init start!
-[05-05 14:50:16]Serial close ok!
-[05-05 14:50:16]Serial init start!
-[05-05 14:50:16]Download driver ok!
-[05-05 14:50:16]uart_txm8c1200_set_driver:0x0
-[05-05 14:50:16]user uart set driver ok!
-[05-05 14:50:16]TXLink ready ok!
-[05-05 14:50:16]TXLink init ok!
-[05-05 14:50:16]Serial close ok!
-[05-05 14:50:16]load_debug_init_api chip id:1260
-[05-05 14:50:16]sys_info_init! 
-[05-05 14:50:16]AG_Init: 0x30a
-[05-05 14:50:16]AG_Init: 0x30b
-[05-05 14:50:16]AG_Init: 0x30f
-[05-05 14:50:16]AG_Init: 0x310
-[05-05 14:50:16]AG_Init: 0x311
-[05-05 14:50:16]AG_Init: 0x312
-[05-05 14:50:16]AG_Init: 0x100
-[05-05 14:50:16]InitMem: 0x0
-[05-05 14:50:16]Serial init start!
-[05-05 14:50:16]chip_init_api
-[05-05 14:50:16]TXLink chip init ok!
-[05-05 14:50:16]AG_Init: 0x201
-[05-05 14:50:16]AG_Init: 0x202
-[05-05 14:50:16]AG_Init: 0x203
-[05-05 14:50:16]AG_Init: 0x204
-[05-05 14:50:16]AG_Init: 0x205
-[05-05 14:50:16]AG_Init: 0x206
-[05-05 14:50:16]AG_Init: 0x207
-[05-05 14:50:16]AG_Init: 0x313
-[05-05 14:50:16]Serial init start!
-[05-05 14:50:16]uart_txm8c1200_check_dev_id:
-[05-05 14:50:16]uart_txm8c1200_check_crc_bin check failed 2:
-[05-05 14:50:16]uart_txm8c1200_check_dev_id ok:
-[05-05 14:50:16]EraseFlash: 0x0
-[05-05 14:50:16]TXLink chip erase ok!
-[05-05 14:50:16]AG_Init: 0x314
-[05-05 14:50:16]FlashLoad: 0x0
-[05-05 14:50:16]InitProgress: Loading...
-[05-05 14:50:16]WriteToFlash: 0xff000000
-[05-05 14:50:16]WriteToFlash: 0xff00001e
-[05-05 14:50:17]WriteToFlash: 0xff00081e
-[05-05 14:50:17]WriteToFlash: 0xff00101e
-[05-05 14:50:18]WriteToFlash: 0xff00181e
-[05-05 14:50:18]InitProgress: Verifying...
-[05-05 14:50:18]VerifyFlash nAdr: 0xff000000
-[05-05 14:50:18]VerifyFlash nAdr: 0xff00001e
-[05-05 14:50:18]VerifyFlash nAdr: 0xff00081e
-[05-05 14:50:18]VerifyFlash nAdr: 0xff00101e
-[05-05 14:50:18]VerifyFlash nAdr: 0xff00181e
-[05-05 14:50:18]chip_reset_api
-[05-05 14:50:18]Serial close ok!
-[05-05 14:50:18]AG_Init: 0x40c
-[05-05 14:50:18]CloseAllDlg: 0x0
-[05-05 14:50:18]StopTarget: 0x0
-[05-05 14:50:18]FreeCache: 0x0
-[05-05 14:50:18]StopTarget: 0x0
-[05-05 14:50:18]FreeCache: 0x0
+[05-06 17:41:47]Log start
+[05-06 17:41:47]Serial init start!
+[05-06 17:41:47]Serial close ok!
+[05-06 17:41:47]Serial init start!
+[05-06 17:41:47]Download driver ok!
+[05-06 17:41:47]uart_txm8c1200_set_driver:0x0
+[05-06 17:41:47]user uart set driver ok!
+[05-06 17:41:47]TXLink ready ok!
+[05-06 17:41:48]TXLink init ok!
+[05-06 17:41:48]Serial close ok!
+[05-06 17:41:48]load_debug_init_api chip id:1260
+[05-06 17:41:48]sys_info_init! 
+[05-06 17:41:48]AG_Init: 0x30a
+[05-06 17:41:48]AG_Init: 0x30b
+[05-06 17:41:48]AG_Init: 0x30f
+[05-06 17:41:48]AG_Init: 0x310
+[05-06 17:41:48]AG_Init: 0x311
+[05-06 17:41:48]AG_Init: 0x312
+[05-06 17:41:48]AG_Init: 0x100
+[05-06 17:41:48]InitMem: 0x0
+[05-06 17:41:48]Serial init start!
+[05-06 17:41:48]chip_init_api
+[05-06 17:41:48]TXLink chip init ok!
+[05-06 17:41:48]AG_Init: 0x201
+[05-06 17:41:48]AG_Init: 0x202
+[05-06 17:41:48]AG_Init: 0x203
+[05-06 17:41:48]AG_Init: 0x204
+[05-06 17:41:48]AG_Init: 0x205
+[05-06 17:41:48]AG_Init: 0x206
+[05-06 17:41:48]AG_Init: 0x207
+[05-06 17:41:48]AG_Init: 0x313
+[05-06 17:41:48]Serial init start!
+[05-06 17:41:48]uart_txm8c1200_check_dev_id:
+[05-06 17:41:48]uart_txm8c1200_check_crc_bin check failed 2:
+[05-06 17:41:48]uart_txm8c1200_check_dev_id ok:
+[05-06 17:41:48]EraseFlash: 0x0
+[05-06 17:41:48]TXLink chip erase ok!
+[05-06 17:41:48]AG_Init: 0x314
+[05-06 17:41:48]FlashLoad: 0x0
+[05-06 17:41:48]InitProgress: Loading...
+[05-06 17:41:48]WriteToFlash: 0xff000000
+[05-06 17:41:48]WriteToFlash: 0xff000800
+[05-06 17:41:49]WriteToFlash: 0xff001000
+[05-06 17:41:49]WriteToFlash: 0xff001800
+[05-06 17:41:50]InitProgress: Verifying...
+[05-06 17:41:50]VerifyFlash nAdr: 0xff000000
+[05-06 17:41:50]VerifyFlash nAdr: 0xff000800
+[05-06 17:41:50]VerifyFlash nAdr: 0xff001000
+[05-06 17:41:50]VerifyFlash nAdr: 0xff001800
+[05-06 17:41:50]chip_reset_api
+[05-06 17:41:50]Serial close ok!
+[05-06 17:41:50]AG_Init: 0x40c
+[05-06 17:41:50]CloseAllDlg: 0x0
+[05-06 17:41:50]StopTarget: 0x0
+[05-06 17:41:50]FreeCache: 0x0
+[05-06 17:41:50]StopTarget: 0x0
+[05-06 17:41:50]FreeCache: 0x0

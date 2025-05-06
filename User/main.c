@@ -28,7 +28,7 @@ float mi; // 幂
 // #define USER_BAUD (115200UL)
 // #define USER_UART_BAUD ((SYSCLK - USER_BAUD) / (USER_BAUD))
 
-volatile bit flag_is_in_power_on; // 是否处于开机缓启动
+// volatile bit flag_is_in_power_on; // 是否处于开机缓启动
 
 #if USE_MY_DEBUG // 打印串口配置
 
@@ -126,7 +126,7 @@ void main(void)
     P14 = 0; // 16脚先输出低电平
     c_duty = 0;
     limited_max_pwm_duty = MAX_PWM_DUTY;
-    flag_is_in_power_on = 1; // 表示到了开机缓启动
+    // flag_is_in_power_on = 1; // 表示到了开机缓启动
     // while (c_duty < 6000)
     while (c_duty < limited_max_pwm_duty) // 当c_duty 大于 限制的最大占空比后，退出
     {
@@ -173,7 +173,7 @@ void main(void)
     }
 #endif
 
-    flag_is_in_power_on = 0; // 表示退出了开机缓启动
+    // flag_is_in_power_on = 0; // 表示退出了开机缓启动
     // ===================================================================
 
     while (1)

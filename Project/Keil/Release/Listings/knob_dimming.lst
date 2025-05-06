@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      05/05/2025 14:47:48 PAGE 1   
+C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      05/06/2025 17:33:33 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE KNOB_DIMMING
@@ -12,96 +12,122 @@ line level    source
    1          #include "knob_dimming.h" // 旋钮调光头文件
    2          
    3          volatile u16 limited_max_pwm_duty = 0; // 存放限制的最大占空比
-   4          
-   5          // 根据旋钮，限制当前的最大占空比
-   6          void update_max_pwm_duty_coefficient(void)
-   7          {
-   8   1          volatile u16 adc_val = 0;
-   9   1          volatile u16 knob_dimming_cur_level = 0;
-  10   1          adc_sel_pin(ADC_SEL_PIN_P31);
-  11   1          adc_val = adc_get_val();
-  12   1      
-  13   1          // limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096; // 会出现指数级下降，因为adjus
+   4          // volatile u16 last_limited_max_pwm_duty = MAX_PWM_DUTY;
+   5          
+   6          // volatile bit flag_is_knob_change = 0; // 标志位，旋钮的状态是否发生变化
+   7          
+   8          // 根据旋钮，限制当前的最大占空比
+   9          void update_max_pwm_duty_coefficient(void)
+  10          {
+  11   1          // static u16 last_adc_val = 4095;
+  12   1          volatile u16 adc_val = 0;
+  13   1          // volatile u16 knob_dimming_cur_level = 0;
+  14   1          adc_sel_pin(ADC_SEL_PIN_P31);
+  15   1          adc_val = adc_get_val();
+  16   1      
+  17   1          // if (last_adc_val != adc_val)
+  18   1          // {
+  19   1          //     flag_is_knob_change = 1;
+  20   1          //     last_adc_val = adc_val;
+  21   1          // }
+  22   1      
+  23   1          // limited_max_pwm_duty = (u32)adjust_duty * adc_val / 4096; // 会出现指数级下降，因为adjus
              -t_duty一直在变化
-  14   1          // limited_max_pwm_duty = (u32)MAX_PWM_DUTY * adc_val / 4096; // 分级太多，加上抖动和迅速�
+  24   1          // limited_max_pwm_duty = (u32)MAX_PWM_DUTY * adc_val / 4096; // 分级太多，加上抖动和迅速�
              -��化，会导致灯光闪烁
-  15   1      
-  16   1      #if USE_MY_DEBUG
-              
-                  printf("adc_val %u\n", adc_val);
-                  printf("limited_max_pwm_duty %u\n", limited_max_pwm_duty);
-              
-                  {
-                      static u8 cnt = 0;
-                      cnt++;
-                      if (cnt >= 200)
-                      {
-                          cnt = 0;
-                          // printf("adc_val %u\n", adc_val);
-                          // printf("limited_max_pwm_duty %u\n", limited_max_pwm_duty);
-                      }
-                  }
-              #endif
-  32   1      
-  33   1      #if 1
-  34   1      
-  35   1          knob_dimming_cur_level = (adc_val - KNOB_DIMMING_MIN_ADC_VAL) / KNOB_DIMMING_ADC_VAL_PER_LEVEL;
-  36   1          if (adc_val >= (KNOB_DIMMING_MAX_ADC_VAL))
-  37   1          {
-  38   2              // 大于某个值，直接输出100%
-  39   2              limited_max_pwm_duty = MAX_PWM_DUTY;
-  40   2              knob_dimming_cur_level = KNOB_DIMMING_LEVELS;
-  41   2          }
-  42   1          else if (adc_val <= (KNOB_DIMMING_MIN_ADC_VAL))
-  43   1          {
-  44   2              // 小于某个值，直接关闭
-  45   2              limited_max_pwm_duty = 0;
-  46   2              knob_dimming_cur_level = 0;
-  47   2          }
-  48   1          else
-  49   1          {
-  50   2              // 计算得出当前ad值对应的等级
-  51   2              // u16 knob_dimming_cur_level = (adc_val - KNOB_DIMMING_MIN_ADC_VAL) / KNOB_DIMMING_ADC_VAL_PER_LE
-C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      05/05/2025 14:47:48 PAGE 2   
+  25   1      
+  26   1      #if 1
+  27   1      
+  28   1          // knob_dimming_cur_level = (adc_val - KNOB_DIMMING_MIN_ADC_VAL) / KNOB_DIMMING_ADC_VAL_PER_LEVEL;
+  29   1          // if (adc_val >= (KNOB_DIMMING_MAX_ADC_VAL))
+  30   1          // {
+  31   1          //     // 大于某个值，直接输出100%
+  32   1          //     limited_max_pwm_duty = MAX_PWM_DUTY;
+  33   1          //     knob_dimming_cur_level = KNOB_DIMMING_LEVELS;
+  34   1          // }
+  35   1          // else if (adc_val <= (KNOB_DIMMING_MIN_ADC_VAL))
+  36   1          // {
+  37   1          //     // 小于某个值，直接关闭
+  38   1          //     limited_max_pwm_duty = 0;
+  39   1          //     knob_dimming_cur_level = 0;
+  40   1          // }
+  41   1          // else
+  42   1          // {
+  43   1          //     // 计算得出当前ad值对应的等级
+  44   1          //     // u16 knob_dimming_cur_level = (adc_val - KNOB_DIMMING_MIN_ADC_VAL) / KNOB_DIMMING_ADC_VAL_PER
+             -_LEVEL;
+  45   1      
+  46   1          //     if ((adc_val - KNOB_DIMMING_MIN_ADC_VAL) > (knob_dimming_cur_level * KNOB_DIMMING_ADC_VAL_PER_L
+             -EVEL + KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL) &&
+  47   1          //         (adc_val - KNOB_DIMMING_MIN_ADC_VAL) < ((knob_dimming_cur_level + 1) * KNOB_DIMMING_ADC_VAL
+             -_PER_LEVEL - KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL))
+  48   1          //     {
+C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      05/06/2025 17:33:33 PAGE 2   
 
-             -VEL;
-  52   2      
-  53   2              if (adc_val > (knob_dimming_cur_level * KNOB_DIMMING_ADC_VAL_PER_LEVEL + KNOB_DIMMING_ADC_DEAD_ZON
-             -E_PER_LEVEL) &&
-  54   2                  adc_val < ((knob_dimming_cur_level + 1) * KNOB_DIMMING_ADC_VAL_PER_LEVEL - KNOB_DIMMING_ADC_DE
-             -AD_ZONE_PER_LEVEL))
-  55   2              {
-  56   3                  // 如果采集的ad值落在这一级
-  57   3              }
-  58   2              else if (adc_val < (knob_dimming_cur_level * KNOB_DIMMING_ADC_VAL_PER_LEVEL + KNOB_DIMMING_ADC_DEA
-             -D_ZONE_PER_LEVEL))
-  59   2              {
-  60   3                  // 如果采集的ad值小于这一级对应的ad值+死区值
-  61   3                  if (knob_dimming_cur_level > 0)
-  62   3                  {
-  63   4                      knob_dimming_cur_level--;
-  64   4                  }
-  65   3              }
-  66   2      
-  67   2              limited_max_pwm_duty = (u32)MAX_PWM_DUTY * knob_dimming_cur_level / KNOB_DIMMING_LEVELS;
-  68   2          }
-  69   1      
-  70   1      #if USE_MY_DEBUG
+  49   1          //         // 如果采集的ad值落在这一级
+  50   1          //     }
+  51   1          //     else if ((adc_val - KNOB_DIMMING_MIN_ADC_VAL) < (knob_dimming_cur_level * KNOB_DIMMING_ADC_VAL_
+             -PER_LEVEL + KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL))
+  52   1          //     {
+  53   1          //         // 如果采集的ad值小于这一级对应的ad值+死区值
+  54   1          //         if (knob_dimming_cur_level > 0)
+  55   1          //         {
+  56   1          //             knob_dimming_cur_level--;
+  57   1          //         }
+  58   1          //     }
+  59   1      
+  60   1          //     limited_max_pwm_duty = (u32)MAX_PWM_DUTY * knob_dimming_cur_level / KNOB_DIMMING_LEVELS;
+  61   1          // }
+  62   1      
+  63   1          if (adc_val <= KNOB_DIMMING_MIN_ADC_VAL) // MIN 0%  0.57V
+  64   1          {
+  65   2              limited_max_pwm_duty = 0;
+  66   2          }
+  67   1          else if (adc_val <= 1278) // 20% 1.52V
+  68   1          {
+  69   2              // 计算采集到的ad值所占20%对应的ad值得占比，再乘以 20%的占空比
+  70   2              limited_max_pwm_duty = (u32)adc_val * MAX_PWM_DUTY * 2 / 10 / 1278;
+  71   2          }
+  72   1          else if (adc_val <= 2498) // 40% 2.97V
+  73   1          {
+  74   2              limited_max_pwm_duty = (u32)adc_val * MAX_PWM_DUTY * 4 / 10 / 2498;
+  75   2          }
+  76   1          else if (adc_val <= 2641) // 50% 3.14V
+  77   1          {
+  78   2              // limited_max_pwm_duty = adc_val * MAX_PWM_DUTY * 5 / 10 / 2641;
+  79   2              limited_max_pwm_duty = (u32)adc_val * MAX_PWM_DUTY / 2 / 2641;
+  80   2          }
+  81   1          else if (adc_val <= 3482) // 60% 4.14V
+  82   1          {
+  83   2              limited_max_pwm_duty = (u32)adc_val * MAX_PWM_DUTY * 6 / 10 / 3482;
+  84   2          }
+  85   1          else if (adc_val <= 4087) // 80% 4.86V
+  86   1          {
+  87   2              limited_max_pwm_duty = (u32)adc_val * MAX_PWM_DUTY * 8 / 10 / 4087;
+  88   2          }
+  89   1          else
+  90   1          {
+  91   2              limited_max_pwm_duty = (u32)adc_val * MAX_PWM_DUTY / 4095;
+  92   2          }
+  93   1      
+  94   1      #if USE_MY_DEBUG
               
-                  printf("cur_level %u\n", knob_dimming_cur_level);
+                  // printf("cur_level %u\n", knob_dimming_cur_level);
               
               #endif // #if USE_MY_DEBUG
-  75   1      
-  76   1      #endif
-  77   1      }
+  99   1      
+ 100   1      #endif
+ 101   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    282    ----
+   CODE SIZE        =    295    ----
    CONSTANT SIZE    =   ----    ----
-   XDATA SIZE       =      2       4
+   XDATA SIZE       =      2       2
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
+C51 COMPILER V9.60.7.0   KNOB_DIMMING                                                      05/06/2025 17:33:33 PAGE 3   
+
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

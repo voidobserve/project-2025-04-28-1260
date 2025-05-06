@@ -59,10 +59,50 @@ void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
             flag_is_pwm_add_time_comes = 1;
         }
 
-        if (pwm_duty_change_cnt >= 10) // 1000us,1ms
+        // if (pwm_duty_change_cnt >= 10) // 1000us,1ms
+        if (pwm_duty_change_cnt >= 5) //
         {
+            u16 tmp_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
+
             pwm_duty_change_cnt = 0;
-            flag_is_pwm_change_time_comes = 1;
+            // flag_is_pwm_change_time_comes = 1;
+
+#if 1
+
+            if (tmp_duty > c_duty)
+            {
+                c_duty++;
+            }
+            else if (tmp_duty < c_duty)
+            {
+                c_duty--;
+            }
+            else // 如果相等
+            {
+                // last_limited_max_pwm_duty = limited_max_pwm_duty;
+                // flag_is_knob_change = 0;
+            }
+
+            set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
+
+            // if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+            if (c_duty <= 0) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+            {
+                // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置回输出模式，输出低电平
+                STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
+                FOUT_S16 = GPIO_FOUT_AF_FUNC; //
+                P16 = 1;                      // 高电平为关灯
+            }
+            // else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚配置回PWM
+            else if (c_duty >= 0) // 大于某个值，再打开PWM，引脚配置回PWM
+            {
+                FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
+                STMR_PWMEN |= 0x01;                // 使能PWM0的输出
+            }
+
+            // printf("c_duty %u\n", c_duty);
+            // printf(",c=%u\n", c_duty);
+#endif
         }
     }
 

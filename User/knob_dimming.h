@@ -4,8 +4,10 @@
 
 #include "my_config.h"
 
-#define KNOB_DIMMING_LEVELS (160)                                    // 旋钮调光的分级
-#define KNOB_DIMMING_ADC_DEAD_ZONE (200)                             // 最大电压值和最小电压值使用到的死区
+#define KNOB_DIMMING_LEVELS (160) // 旋钮调光的分级
+// #define KNOB_DIMMING_ADC_DEAD_ZONE (200)                             // 最大电压值和最小电压值使用到的死区 (客户反馈扭到10%占空比就关了)
+// #define KNOB_DIMMING_ADC_DEAD_ZONE (50)                             // 最大电压值和最小电压值使用到的死区
+#define KNOB_DIMMING_ADC_DEAD_ZONE (25)                              // 最大电压值和最小电压值使用到的死区
 #define KNOB_DIMMING_MAX_ADC_VAL (4095 - KNOB_DIMMING_ADC_DEAD_ZONE) // 客户在引脚上测得最大的电压值是4.87V，就是VCC的电压，这里最好再加上死区
 #define KNOB_DIMMING_MIN_ADC_VAL (479 + KNOB_DIMMING_ADC_DEAD_ZONE)  // 客户引脚上测得最小电压值是0.57V
 
@@ -24,6 +26,8 @@
     ((u8)(KNOB_DIMMING_ADC_VAL_PER_LEVEL * 2 / 10))
 
 extern volatile u16 limited_max_pwm_duty; // 存放限制的最大占空比
+// extern volatile u16 last_limited_max_pwm_duty;
+// extern volatile bit flag_is_knob_change; // 标志位，旋钮的状态是否发生变化
 
 // 根据旋钮，限制当前的最大占空比
 void update_max_pwm_duty_coefficient(void);
