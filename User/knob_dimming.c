@@ -61,6 +61,11 @@ void update_max_pwm_duty_coefficient(void)
 
     limited_adjust_pwm_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
 
+    if (limited_adjust_pwm_duty >= 5950) // 大于该值，直接输出最大功率，防止从MIN扭到MAX时，输出不了最大功率
+    {
+        limited_adjust_pwm_duty = adjust_duty;
+    }
+
 #if USE_MY_DEBUG
 
     // printf("cur_level %u\n", knob_dimming_cur_level);
