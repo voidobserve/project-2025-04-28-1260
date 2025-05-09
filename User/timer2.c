@@ -1,7 +1,7 @@
 #include "timer2.h"
 #define TIMER2_PEROID_VAL (SYSCLK / 128 / 10000 - 1) // 周期值=系统时钟/分频/频率 - 1
 
-// volatile u16 tmr2_cnt = 0;
+extern volatile bit flag_is_in_power_on; // 是否处于开机缓启动
 
 static volatile u16 pwm_duty_add_cnt; // 用于控制pwm增加的时间计数
 static volatile u16 pwm_duty_sub_cnt; // 用于控制pwm递减的时间计数
@@ -9,7 +9,7 @@ static volatile u16 pwm_duty_sub_cnt; // 用于控制pwm递减的时间计数
 volatile bit flag_is_pwm_add_time_comes = 0; // 标志位，pwm占空比递增时间到来
 volatile bit flag_is_pwm_sub_time_comes = 0; // 标志位，pwm占空比递减时间到来
 
-static volatile u8 pwm_duty_change_cnt = 0;     // 用于控制pwm变化的时间计数（用在旋钮调节的PWM占空比中）
+static volatile u16 pwm_duty_change_cnt = 0;    // 用于控制pwm变化的时间计数（用在旋钮调节的PWM占空比中）
 volatile bit flag_is_pwm_change_time_comes = 0; // 标志位，pwm变化时间到来（用在旋钮调节的PWM占空比中）
 
 void timer2_config(void)
@@ -59,51 +59,95 @@ void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
             flag_is_pwm_add_time_comes = 1;
         }
 
+#if 1
         // if (pwm_duty_change_cnt >= 10) // 1000us,1ms
-        if (pwm_duty_change_cnt >= 5) //
+        if (pwm_duty_change_cnt >= 5) // 客户反馈在这个速度下，旋钮调节到40%以下的挡位后，灯光会闪烁，调节得越低，闪烁越频繁
         {
-            u16 tmp_duty = (u32)adjust_duty * limited_max_pwm_duty / MAX_PWM_DUTY; // adjust_duty * 旋钮限制的占空比系数
 
             pwm_duty_change_cnt = 0;
             // flag_is_pwm_change_time_comes = 1;
 
-#if 1
+            if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
+            {
+                if (limited_adjust_pwm_duty > c_duty)
+                {
+                    c_duty++;
 
-            if (tmp_duty > c_duty)
-            {
-                c_duty++;
-            }
-            else if (tmp_duty < c_duty)
-            {
-                c_duty--;
-            }
-            else // 如果相等
-            {
-                // last_limited_max_pwm_duty = limited_max_pwm_duty;
-                // flag_is_knob_change = 0;
-            }
 
-            set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
+                    // // if ((limited_adjust_pwm_duty - c_duty) < 20) // 在旋钮挡位20%时，灯光闪烁最明显
+                    // if ((limited_adjust_pwm_duty - c_duty) < 50) // 旋钮挡位在10%附近时，灯光会有微微闪烁
+                    // // if ((limited_adjust_pwm_duty - c_duty) < 80) //  
+                    // {
+                    //     if (pwm_duty_change_cnt >= 10000) // 1s
+                    //     {
+                    //         pwm_duty_change_cnt = 0;
+                    //         c_duty++;
+                    //     }
+                    // }
+                    // else
+                    // {
+                    //     if (pwm_duty_change_cnt >= 5) // 500us
+                    //     {
+                    //         pwm_duty_change_cnt = 0;
+                    //         c_duty++;
+                    //     }
+                    // }
+                }
+                else if (limited_adjust_pwm_duty < c_duty)
+                {
+                    c_duty--;
 
-            // if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
-            if (c_duty <= 0) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
-            {
-                // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置回输出模式，输出低电平
-                STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
-                FOUT_S16 = GPIO_FOUT_AF_FUNC; //
-                P16 = 1;                      // 高电平为关灯
-            }
-            // else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚配置回PWM
-            else if (c_duty >= 0) // 大于某个值，再打开PWM，引脚配置回PWM
-            {
-                FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
-                STMR_PWMEN |= 0x01;                // 使能PWM0的输出
-            }
+                    // // if ((c_duty - limited_adjust_pwm_duty) < 20) // 在旋钮挡位20%时，灯光闪烁最明显
+                    // if ((c_duty - limited_adjust_pwm_duty) < 50) // 旋钮挡位在10%附近时，灯光会有微微闪烁
+                    // // if ((c_duty - limited_adjust_pwm_duty) < 80) // 
+                    // {
+                    //     if (pwm_duty_change_cnt >= 10000) // 1s
+                    //     {
+                    //         pwm_duty_change_cnt = 0;
+                    //         c_duty--;
+                    //     }
+                    // }
+                    // else
+                    // {
+                    //     if (pwm_duty_change_cnt >= 5) // 500us
+                    //     {
+                    //         pwm_duty_change_cnt = 0;
+                    //         c_duty--;
+                    //     }
+                    // }
+                }
+                else // 如果相等
+                {
+                    // last_limited_max_pwm_duty = limited_max_pwm_duty;
+                    // flag_is_knob_change = 0;
+                    // pwm_duty_change_cnt = 0;
+                }
 
+                set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
+
+                // if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+                if (c_duty <= 0) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
+                {
+                    // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置回输出模式，输出低电平
+                    STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
+                    FOUT_S16 = GPIO_FOUT_AF_FUNC; //
+                    P16 = 1;                      // 高电平为关灯
+                }
+                // else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚配置回PWM
+                else if (c_duty >= 0) // 大于某个值，再打开PWM，引脚配置回PWM
+                {
+                    FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
+                    STMR_PWMEN |= 0x01;                // 使能PWM0的输出
+                }
+            } // if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
+
+#if 0
             // printf("c_duty %u\n", c_duty);
             // printf(",c=%u\n", c_duty);
 #endif
         }
+
+#endif
     }
 
     // 退出中断设置IP，不可删除
