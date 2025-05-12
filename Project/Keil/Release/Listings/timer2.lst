@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/09/2025 10:24:02 PAGE 1   
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TIMER2
@@ -62,7 +62,7 @@ line level    source
   47   2      
   48   2              if (pwm_duty_sub_cnt >= 13) // 1300us，1.3ms
   49   2              // if (pwm_duty_sub_cnt >= 50)
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/09/2025 10:24:02 PAGE 2   
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 2   
 
   50   2              {
   51   3                  pwm_duty_sub_cnt = 0;
@@ -78,8 +78,7 @@ line level    source
   61   2      
   62   2      #if 1
   63   2              // if (pwm_duty_change_cnt >= 10) // 1000us,1ms
-  64   2              if (pwm_duty_change_cnt >= 5) // 客户反馈在这个速度下，旋钮调节到40%以下的挡�
-             -�后，灯光会闪烁，调节得越低，闪烁越频繁
+  64   2              if (pwm_duty_change_cnt >= 5) // 
   65   2              {
   66   3      
   67   3                  pwm_duty_change_cnt = 0;
@@ -126,9 +125,9 @@ line level    source
  104   5                          //     if (pwm_duty_change_cnt >= 10000) // 1s
  105   5                          //     {
  106   5                          //         pwm_duty_change_cnt = 0;
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/09/2025 10:24:02 PAGE 3   
-
  107   5                          //         c_duty--;
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 3   
+
  108   5                          //     }
  109   5                          // }
  110   5                          // else
@@ -190,9 +189,9 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/09/2025 10:24:02 PAGE 4   
-
    BIT SIZE         =      3    ----
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 4   
+
 END OF MODULE INFORMATION.
 
 

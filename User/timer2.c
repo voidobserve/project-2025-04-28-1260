@@ -61,7 +61,7 @@ void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
 
 #if 1
         // if (pwm_duty_change_cnt >= 10) // 1000us,1ms
-        if (pwm_duty_change_cnt >= 5) // 客户反馈在这个速度下，旋钮调节到40%以下的挡位后，灯光会闪烁，调节得越低，闪烁越频繁
+        if (pwm_duty_change_cnt >= 5) // 
         {
 
             pwm_duty_change_cnt = 0;

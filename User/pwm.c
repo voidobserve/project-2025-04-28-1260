@@ -53,7 +53,8 @@ static u16 t_adc_min = 4096; // 存放一段时间内采集到的最小ad值
 static u8 over_drive_status = 0;
 #define OVER_DRIVE_RESTART_TIME (30)
 
-static volatile u16 filter_buff_2[270] = {0}; // 用于滤波的数组
+// static volatile u16 filter_buff_2[270] = {0}; // 用于滤波的数组
+static volatile u16 filter_buff_2[540] = {0}; // 用于滤波的数组
 static volatile u16 buff_index_2 = 0;         // 用于滤波的数组下标
 
 // 电源电压低于170V-AC,启动低压保护，电源电压高于170V-AC，关闭低压保护
@@ -78,7 +79,8 @@ void according_pin9_to_adjust_pwm(void)
         {
             filter_buff[i] = adc_val_pin_9;
         }
-        for (i = 0; i < 270; i++)
+        // for (i = 0; i < 270; i++)
+        for (i = 0; i < 540; i++)
         {
             filter_buff_2[i] = adc_val_pin_9;
         }
@@ -110,7 +112,8 @@ void according_pin9_to_adjust_pwm(void)
     // 在前面滤波的基础上再进行一次滤波
     filter_buff_2[buff_index_2] = adc_pin_9_avg;
     buff_index_2++;
-    if (buff_index_2 >= 270)
+    // if (buff_index_2 >= 270)
+    if (buff_index_2 >= 540)
     {
         buff_index_2 = 0;
     }
@@ -119,34 +122,12 @@ void according_pin9_to_adjust_pwm(void)
     // printf(",b=%lu,", adc_pin_9_avg);
 #endif
 
-    // if (adc_pin_9_avg > t_adc_max)
-    //     t_adc_max = adc_pin_9_avg;
-    // if (adc_pin_9_avg < t_adc_min)
-    //     t_adc_min = adc_pin_9_avg;
-    // if (t_count < 270)
-    // {
-    //     t_count++;
-    //     if (t_count == 270)
-    //     {
-    //         if ((t_adc_max - t_adc_min) > 80 && t_adc_max > 2228)
-    //         { // 电压波动
-    //             over_drive_status = OVER_DRIVE_RESTART_TIME;
-    //         }
-    //         else
-    //         {
-    //             if (over_drive_status)
-    //                 over_drive_status--;
-    //         }
-    //         t_count = 0;
-    //         t_adc_max = 0;
-    //         t_adc_min = 4096;
-    //     }
-    // }
     {
         u16 i = 0;
         t_adc_max = 0;
         t_adc_min = 4096;
-        for (; i < 270; i++)
+        // for (; i < 270; i++)
+        for (; i < 540; i++)
         {
             if (filter_buff_2[i] > t_adc_max)
                 t_adc_max = filter_buff_2[i];
@@ -162,6 +143,16 @@ void according_pin9_to_adjust_pwm(void)
                     over_drive_status--;
             }
         }
+
+        // {
+        //     static u8 cnt = 0;
+        //     cnt++;
+        //     if (cnt >= 100)
+        //     {
+        //         cnt = 0;
+        //         printf("__LINE__ %u\n", __LINE__);
+        //     }
+        // }
     }
 
     if (adc_pin_9_avg >= (1645 /*1475*/ + ADC_DEAD_ZONE_NEAR_170VAC) || (flag_is_add_power && adc_pin_9_avg > (1645 /*1475*/ + ADC_DEAD_ZONE_NEAR_170VAC))) // 大于 170VAC
