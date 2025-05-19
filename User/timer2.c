@@ -10,7 +10,7 @@ volatile bit flag_is_pwm_add_time_comes = 0; // 标志位，pwm占空比递增�
 volatile bit flag_is_pwm_sub_time_comes = 0; // 标志位，pwm占空比递减时间到来
 
 static volatile u16 pwm_duty_change_cnt = 0;    // 用于控制pwm变化的时间计数（用在旋钮调节的PWM占空比中）
-volatile bit flag_is_pwm_change_time_comes = 0; // 标志位，pwm变化时间到来（用在旋钮调节的PWM占空比中）
+// volatile bit flag_is_pwm_change_time_comes = 0; // 标志位，pwm变化时间到来（用在旋钮调节的PWM占空比中）
 
 void timer2_config(void)
 {
@@ -61,12 +61,13 @@ void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
 
 #if 1
         // if (pwm_duty_change_cnt >= 10) // 1000us,1ms
-        if (pwm_duty_change_cnt >= 5) // 
+        if (pwm_duty_change_cnt >= 5) // 500us
         {
 
             pwm_duty_change_cnt = 0;
             // flag_is_pwm_change_time_comes = 1;
 
+#if 1
             if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
             {
                 if (limited_adjust_pwm_duty > c_duty)
@@ -140,6 +141,7 @@ void TIMR2_IRQHandler(void) interrupt TMR2_IRQn
                     STMR_PWMEN |= 0x01;                // 使能PWM0的输出
                 }
             } // if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
+#endif
 
 #if 0
             // printf("c_duty %u\n", c_duty);

@@ -122,7 +122,7 @@ void main(void)
     // adc_sel_pin(ADC_SEL_PIN_GET_VOL); // 切换到9脚，准备检测9脚的电压
 
 // ===================================================================
-#if 1        // 开机缓慢启动（PWM信号变化平缓）
+#if 1 // 开机缓慢启动（PWM信号变化平缓）
     P14 = 0; // 16脚先输出低电平
     c_duty = 0;
     limited_max_pwm_duty = MAX_PWM_DUTY;
@@ -171,7 +171,7 @@ void main(void)
         // printf("power_on_duty %u\n", c_duty);
 #endif //  USE_MY_DEBUG
     }
-#endif
+#endif // 开机缓慢启动（PWM信号变化平缓）
 
     adjust_duty = c_duty;    // 缓启动后，立即更新 adjust_duty 的值
     flag_is_in_power_on = 0; // 表示退出了开机缓启动
@@ -181,10 +181,15 @@ void main(void)
     // c_duty = MAX_PWM_DUTY;
     // set_pwm_duty();
 
+    // 测试是不是由于频繁检测到电压在开机和关机之间，导致闪灯：
+    // c_duty = MAX_PWM_DUTY * 1 / 100;
+    // c_duty = MAX_PWM_DUTY * 3 / 100;
+    // c_duty = MAX_PWM_DUTY * 5 / 1000;
+    // delay_ms(1000);
+
     while (1)
     {
 
-        // printf("%bu \n", KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL);
 #if 1
         adc_update_pin_9_adc_val(); // 采集并更新9脚的ad值
         update_max_pwm_duty_coefficient();
@@ -198,6 +203,14 @@ void main(void)
 #endif //  USE_MY_DEBUG
 
 #endif
+
+        /*
+            下面让定时器来调节，每隔500us检测一次，会导致灯光闪烁：
+            // c_duty = MAX_PWM_DUTY * 1 / 100;
+            // delay_ms(300);
+            // c_duty = 0;
+            // delay_ms(300);
+        */
 
         // P13 = ~P13;
     }

@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 1   
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/19/2025 14:01:26 PAGE 1   
 
 
 C51 COMPILER V9.60.7.0, COMPILATION OF MODULE TIMER2
@@ -22,8 +22,8 @@ line level    source
   11          
   12          static volatile u16 pwm_duty_change_cnt = 0;    // 用于控制pwm变化的时间计数（用在旋钮调�
              -��的PWM占空比中）
-  13          volatile bit flag_is_pwm_change_time_comes = 0; // 标志位，pwm变化时间到来（用在旋钮调节�
-             -��PWM占空比中）
+  13          // volatile bit flag_is_pwm_change_time_comes = 0; // 标志位，pwm变化时间到来（用在旋钮调�
+             -��的PWM占空比中）
   14          
   15          void timer2_config(void)
   16          {
@@ -62,7 +62,7 @@ line level    source
   47   2      
   48   2              if (pwm_duty_sub_cnt >= 13) // 1300us，1.3ms
   49   2              // if (pwm_duty_sub_cnt >= 50)
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 2   
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/19/2025 14:01:26 PAGE 2   
 
   50   2              {
   51   3                  pwm_duty_sub_cnt = 0;
@@ -78,108 +78,110 @@ line level    source
   61   2      
   62   2      #if 1
   63   2              // if (pwm_duty_change_cnt >= 10) // 1000us,1ms
-  64   2              if (pwm_duty_change_cnt >= 5) // 
+  64   2              if (pwm_duty_change_cnt >= 5) // 500us
   65   2              {
   66   3      
   67   3                  pwm_duty_change_cnt = 0;
   68   3                  // flag_is_pwm_change_time_comes = 1;
   69   3      
-  70   3                  if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
-  71   3                  {
-  72   4                      if (limited_adjust_pwm_duty > c_duty)
-  73   4                      {
-  74   5                          c_duty++;
-  75   5      
+  70   3      #if 1
+  71   3                  if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
+  72   3                  {
+  73   4                      if (limited_adjust_pwm_duty > c_duty)
+  74   4                      {
+  75   5                          c_duty++;
   76   5      
-  77   5                          // // if ((limited_adjust_pwm_duty - c_duty) < 20) // 在旋钮挡位20%时，灯光�
+  77   5      
+  78   5                          // // if ((limited_adjust_pwm_duty - c_duty) < 20) // 在旋钮挡位20%时，灯光�
              -�烁最明显
-  78   5                          // if ((limited_adjust_pwm_duty - c_duty) < 50) // 旋钮挡位在10%附近时，灯�
+  79   5                          // if ((limited_adjust_pwm_duty - c_duty) < 50) // 旋钮挡位在10%附近时，灯�
              -�会有微微闪烁
-  79   5                          // // if ((limited_adjust_pwm_duty - c_duty) < 80) //  
-  80   5                          // {
-  81   5                          //     if (pwm_duty_change_cnt >= 10000) // 1s
-  82   5                          //     {
-  83   5                          //         pwm_duty_change_cnt = 0;
-  84   5                          //         c_duty++;
-  85   5                          //     }
-  86   5                          // }
-  87   5                          // else
-  88   5                          // {
-  89   5                          //     if (pwm_duty_change_cnt >= 5) // 500us
-  90   5                          //     {
-  91   5                          //         pwm_duty_change_cnt = 0;
-  92   5                          //         c_duty++;
-  93   5                          //     }
-  94   5                          // }
-  95   5                      }
-  96   4                      else if (limited_adjust_pwm_duty < c_duty)
-  97   4                      {
-  98   5                          c_duty--;
-  99   5      
- 100   5                          // // if ((c_duty - limited_adjust_pwm_duty) < 20) // 在旋钮挡位20%时，灯光�
+  80   5                          // // if ((limited_adjust_pwm_duty - c_duty) < 80) //  
+  81   5                          // {
+  82   5                          //     if (pwm_duty_change_cnt >= 10000) // 1s
+  83   5                          //     {
+  84   5                          //         pwm_duty_change_cnt = 0;
+  85   5                          //         c_duty++;
+  86   5                          //     }
+  87   5                          // }
+  88   5                          // else
+  89   5                          // {
+  90   5                          //     if (pwm_duty_change_cnt >= 5) // 500us
+  91   5                          //     {
+  92   5                          //         pwm_duty_change_cnt = 0;
+  93   5                          //         c_duty++;
+  94   5                          //     }
+  95   5                          // }
+  96   5                      }
+  97   4                      else if (limited_adjust_pwm_duty < c_duty)
+  98   4                      {
+  99   5                          c_duty--;
+ 100   5      
+ 101   5                          // // if ((c_duty - limited_adjust_pwm_duty) < 20) // 在旋钮挡位20%时，灯光�
              -�烁最明显
- 101   5                          // if ((c_duty - limited_adjust_pwm_duty) < 50) // 旋钮挡位在10%附近时，灯�
+ 102   5                          // if ((c_duty - limited_adjust_pwm_duty) < 50) // 旋钮挡位在10%附近时，灯�
              -�会有微微闪烁
- 102   5                          // // if ((c_duty - limited_adjust_pwm_duty) < 80) // 
- 103   5                          // {
- 104   5                          //     if (pwm_duty_change_cnt >= 10000) // 1s
- 105   5                          //     {
- 106   5                          //         pwm_duty_change_cnt = 0;
- 107   5                          //         c_duty--;
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 3   
+ 103   5                          // // if ((c_duty - limited_adjust_pwm_duty) < 80) // 
+ 104   5                          // {
+ 105   5                          //     if (pwm_duty_change_cnt >= 10000) // 1s
+ 106   5                          //     {
+ 107   5                          //         pwm_duty_change_cnt = 0;
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/19/2025 14:01:26 PAGE 3   
 
- 108   5                          //     }
- 109   5                          // }
- 110   5                          // else
- 111   5                          // {
- 112   5                          //     if (pwm_duty_change_cnt >= 5) // 500us
- 113   5                          //     {
- 114   5                          //         pwm_duty_change_cnt = 0;
- 115   5                          //         c_duty--;
- 116   5                          //     }
- 117   5                          // }
- 118   5                      }
- 119   4                      else // 如果相等
- 120   4                      {
- 121   5                          // last_limited_max_pwm_duty = limited_max_pwm_duty;
- 122   5                          // flag_is_knob_change = 0;
- 123   5                          // pwm_duty_change_cnt = 0;
- 124   5                      }
- 125   4      
- 126   4                      set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
- 127   4      
- 128   4                      // if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，
+ 108   5                          //         c_duty--;
+ 109   5                          //     }
+ 110   5                          // }
+ 111   5                          // else
+ 112   5                          // {
+ 113   5                          //     if (pwm_duty_change_cnt >= 5) // 500us
+ 114   5                          //     {
+ 115   5                          //         pwm_duty_change_cnt = 0;
+ 116   5                          //         c_duty--;
+ 117   5                          //     }
+ 118   5                          // }
+ 119   5                      }
+ 120   4                      else // 如果相等
+ 121   4                      {
+ 122   5                          // last_limited_max_pwm_duty = limited_max_pwm_duty;
+ 123   5                          // flag_is_knob_change = 0;
+ 124   5                          // pwm_duty_change_cnt = 0;
+ 125   5                      }
+ 126   4      
+ 127   4                      set_pwm_duty(); // 函数内部会将 c_duty 的值代入相关寄存器中
+ 128   4      
+ 129   4                      // if (c_duty <= KNOB_DIMMING_MIN_ADC_VAL) // 小于某个值，直接输出0%占空比，
              -关闭PWM输出，引脚配置为输出模式(尽量小于等于2%的占空比再灭灯)
- 129   4                      if (c_duty <= 0) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚�
+ 130   4                      if (c_duty <= 0) // 小于某个值，直接输出0%占空比，关闭PWM输出，引脚�
              -�置为输出模式(尽量小于等于2%的占空比再灭灯)
- 130   4                      {
- 131   5                          // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置
+ 131   4                      {
+ 132   5                          // 直接输出0%的占空比，可能会有些跳动，需要将对应的引脚配置
              -回输出模式，输出低电平
- 132   5                          STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
- 133   5                          FOUT_S16 = GPIO_FOUT_AF_FUNC; //
- 134   5                          P16 = 1;                      // 高电平为关灯
- 135   5                      }
- 136   4                      // else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚
+ 133   5                          STMR_PWMEN &= ~0x01;          // 不使能PWM0的输出
+ 134   5                          FOUT_S16 = GPIO_FOUT_AF_FUNC; //
+ 135   5                          P16 = 1;                      // 高电平为关灯
+ 136   5                      }
+ 137   4                      // else if (c_duty >= KNOB_DIMMING_MIN_ADC_VAL) // 大于某个值，再打开PWM，引脚
              -配置回PWM
- 137   4                      else if (c_duty >= 0) // 大于某个值，再打开PWM，引脚配置回PWM
- 138   4                      {
- 139   5                          FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
- 140   5                          STMR_PWMEN |= 0x01;                // 使能PWM0的输出
- 141   5                      }
- 142   4                  } // if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
- 143   3      
- 144   3      #if 0
+ 138   4                      else if (c_duty >= 0) // 大于某个值，再打开PWM，引脚配置回PWM
+ 139   4                      {
+ 140   5                          FOUT_S16 = GPIO_FOUT_STMR0_PWMOUT; // stmr0_pwmout
+ 141   5                          STMR_PWMEN |= 0x01;                // 使能PWM0的输出
+ 142   5                      }
+ 143   4                  } // if (0 == flag_is_in_power_on) // 不处于开机缓启动，才使能PWM占空比调节
+ 144   3      #endif
+ 145   3      
+ 146   3      #if 0
                           // printf("c_duty %u\n", c_duty);
                           // printf(",c=%u\n", c_duty);
               #endif
- 148   3              }
- 149   2      
- 150   2      #endif
- 151   2          }
- 152   1      
- 153   1          // 退出中断设置IP，不可删除
- 154   1          __IRQnIPnPop(TMR2_IRQn);
- 155   1      }
+ 150   3              }
+ 151   2      
+ 152   2      #endif
+ 153   2          }
+ 154   1      
+ 155   1          // 退出中断设置IP，不可删除
+ 156   1          __IRQnIPnPop(TMR2_IRQn);
+ 157   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
@@ -188,10 +190,10 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    XDATA SIZE       =      6    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
-   IDATA SIZE       =   ----    ----
-   BIT SIZE         =      3    ----
-C51 COMPILER V9.60.7.0   TIMER2                                                            05/12/2025 17:48:27 PAGE 4   
+C51 COMPILER V9.60.7.0   TIMER2                                                            05/19/2025 14:01:26 PAGE 4   
 
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =      2    ----
 END OF MODULE INFORMATION.
 
 

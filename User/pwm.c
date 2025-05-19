@@ -57,8 +57,13 @@ static u8 over_drive_status = 0;
 static volatile u16 filter_buff_2[540] = {0}; // 用于滤波的数组
 static volatile u16 buff_index_2 = 0;         // 用于滤波的数组下标
 
-// 电源电压低于170V-AC,启动低压保护，电源电压高于170V-AC，关闭低压保护
-// 温度正常，才会进入到这里
+
+/*
+    电源电压低于170V-AC,启动低压保护，电源电压高于170V-AC，关闭低压保护
+    温度正常，才会进入到这里
+    注意，每次调用到该函数，应该在5.75ms左右，检测发动机功率不稳定的原理是检测频率，
+    如果不在5.75ms附近，可能会导致检测不准确，检测不到发动机功率不稳定
+*/ 
 void according_pin9_to_adjust_pwm(void)
 {
 #define ADC_DEAD_ZONE_NEAR_170VAC (30) // 170VAC附近的ad值死区

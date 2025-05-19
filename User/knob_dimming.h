@@ -27,9 +27,16 @@
     分成160级，3617 / 160 = 22.60625（取整为 22）
     在 22 取 10% -> 2.2（取整为2）作为死区
     在 22 取 20% -> 4.4（取整为4）作为死区
-*/
-#define KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL \
+    #define KNOB_DIMMING_ADC_DEAD_ZONE_PER_LEVEL \
     ((u8)(KNOB_DIMMING_ADC_VAL_PER_LEVEL * 2 / 10))
+*/
+
+// 定义旋钮各个挡位下，单片机检测到的ad值，实际会因为旋钮的机械结构而有偏差，比如从min扭到max，从max扭到min，检测到的值会不一样
+#define KNOB_DIMMING_ADC_VAL_20_PERCENT 1245
+#define KNOB_DIMMING_ADC_VAL_40_PERCENT 2286
+#define KNOB_DIMMING_ADC_VAL_50_PERCENT 2834
+#define KNOB_DIMMING_ADC_VAL_60_PERCENT 3260
+// #define KNOB_DIMMING_ADC_VAL_80_PERCENT
 
 extern volatile u16 limited_max_pwm_duty;    // 存放限制的最大占空比
 extern volatile u16 limited_adjust_pwm_duty; // 存放旋钮限制之后的，待调整的占空比值
